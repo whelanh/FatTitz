@@ -1122,9 +1122,10 @@ moves_loop: // When in check search starts from here
       } else {
 
         // Countermoves based pruning
-        if (   lmrDepth < 5
-            && (*cmh )[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
-            && (*fmh )[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
+        if (lmrDepth < 5
+            &&  (*cmh )[movedPiece][to_sq(move)]
+              + (*fmh )[movedPiece][to_sq(move)]
+              + (*fmh2)[movedPiece][to_sq(move)] < -3000 * depth + 3000)
           continue;
 
         // Futility pruning: parent node
@@ -1296,7 +1297,7 @@ moves_loop: // When in check search starts from here
           r -= ss->statScore / 14721;
       }
 
-      Depth d = clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
+      Depth d = clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
       value = -search_NonPV(pos, ss+1, -(alpha+1), d, 1);
 
